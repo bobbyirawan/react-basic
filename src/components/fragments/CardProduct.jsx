@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import ButtonDefault from "../atoms/ButtonDefault";
 
 const CardProduct = ({ children }) => {
@@ -8,27 +9,27 @@ const CardProduct = ({ children }) => {
   );
 };
 
-const Header = ({ image }) => {
+const Header = ({ image, id }) => {
   return (
-    <a href="#">
+    <Link to={`/product/${id}`}>
       <img
         src={image}
         alt="product"
         className="p-8 rounded-t-lg h-60 w-full object-cover"
       />
-    </a>
+    </Link>
   );
 };
 
-const Body = ({ children, title }) => {
+const Body = ({ children, title, id}) => {
   return (
     <div className="px-5 pb-5">
-      <a href="#">
+      <Link to={`/product/${id}`}>
         <h5 className="text-xl font-semibold tracking-tight text-white">
           {title.substring(0, 20)} ...
         </h5>
         <p className="text-white text-s">{children.substring(0, 100)}...</p>
-      </a>
+      </Link>
     </div>
   );
 };
