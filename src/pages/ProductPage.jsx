@@ -1,30 +1,46 @@
 import { useEffect, useRef, useState } from "react";
 import ButtonDefault from "../components/atoms/ButtonDefault";
 import CardProduct from "../components/fragments/CardProduct";
-import { productItems } from "../data/products";
-
-const email = localStorage.getItem("email");
+import { getProducts } from "../services/product.service";
+import { USD } from "../package/currency";
 
 const ProductPage = () => {
   const [carts, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [username, setUsername] = useState("");
+
   useEffect(() => {
     console.log("useEffect1");
-    setCart(JSON.parse(localStorage.getItem("carts")) || []);
+
+    setUsername(localStorage.getItem("username") || "");
+
+    if (JSON.parse(localStorage.getItem("carts"))) {
+      setCart(JSON.parse(localStorage.getItem("carts")));
+    } else {
+      setCart([]);
+    }
   }, []);
 
   useEffect(() => {
-    console.log("cart updated: ");
-    if (carts.length > 0) {
+    console.log("useEffect2");
+    getProducts((data) => {
+      setProducts(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log("cart updated: " + JSON.stringify(carts));
+    if (products.length > 0 && carts.length > 0) {
       const sum = carts.reduce((acc, item) => {
-        const product = productItems.find((product) => product.id === item.id);
+        const product = products.find((product) => product.id === item.id);
         return acc + product.price * item.qty;
       }, 0);
       setTotalPrice(sum);
 
       localStorage.setItem("carts", JSON.stringify(carts));
     }
-  }, [carts]);
+  }, [carts, products]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -82,7 +98,7 @@ const ProductPage = () => {
   return (
     <>
       <div className="flex justify-end h-20 bg-blue-600 text-white items-center px-10">
-        {email}
+        {username}
         <ButtonDefault
           classname="ml-5 bg-sky-600"
           onClick={handleLogout}
@@ -93,19 +109,20 @@ const ProductPage = () => {
       </div>
       <div className="flex justify-center py-5">
         <div className="w-3/4 flex flex-wrap">
-          {productItems.map((item) => (
-            <CardProduct key={item.id}>
-              <CardProduct.Header image={item.image} />
-              <CardProduct.Body title={item.name}>
-                {item.description}
-              </CardProduct.Body>
-              <CardProduct.Footer
-                price={item.price}
-                id={item.id}
-                onAddToCart={handleAddToCart}
-              />
-            </CardProduct>
-          ))}
+          {products.length > 0 &&
+            products.map((item) => (
+              <CardProduct key={item.id}>
+                <CardProduct.Header image={item.image} />
+                <CardProduct.Body title={item.title}>
+                  {item.description}
+                </CardProduct.Body>
+                <CardProduct.Footer
+                  price={USD(item.price)}
+                  id={item.id}
+                  onAddToCart={handleAddToCart}
+                />
+              </CardProduct>
+            ))}
         </div>
         <div className="w-1/4">
           <h1 className="text-3xl font-bold text-blue-600 ml-5 mb-2">Cart</h1>
@@ -119,37 +136,21 @@ const ProductPage = () => {
               </tr>
             </thead>
             <tbody>
-              {carts.map((cart) => {
-                const product = productItems.find(
-                  (item) => item.id === cart.id
-                );
-                return (
-                  <tr key={product.id}>
-                    <td>{product.name}</td>
-                    <td>
-                      {"Rp. " + (product.price * 1).toLocaleString("id-ID")}
-                    </td>
-                    <td>{cart.qty}</td>
-                    <td>
-                      {"Rp. " +
-                        (product.price * cart.qty).toLocaleString("id-ID")}
-                    </td>
-                  </tr>
-                );
-              })}
+              {products.length > 0 &&
+                carts.map((cart) => {
+                  const product = products.find((item) => item.id === cart.id);
+                  return (
+                    <tr key={product.id}>
+                      <td>{product.title}</td>
+                      <td>{USD(product.price)}</td>
+                      <td>{cart.qty}</td>
+                      <td>{USD(product.price * cart.qty)}</td>
+                    </tr>
+                  );
+                })}
               <tr ref={totalPriceRef}>
-                <td colSpan={3}>
-                  <b>Total Price</b>
-                </td>
-                <td>
-                  <b>
-                    {" "}
-                    {totalPrice.toLocaleString("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                    })}
-                  </b>
-                </td>
+                <td colSpan={3}><b>Total Price</b></td>
+                <td><b>{USD(totalPrice)}</b></td>
               </tr>
             </tbody>
           </table>

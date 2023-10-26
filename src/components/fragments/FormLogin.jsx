@@ -1,29 +1,53 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ButtonDefault from "../atoms/ButtonDefault";
 import InputForm1 from "../elements/InputForm1";
+import { login } from "../../services/auth.service";
 
 const FormLogin = () => {
+  const [loginFailed, setLoginFailed] = useState("");
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    localStorage.setItem("email", event.target.email.value);
-    localStorage.setItem("password", event.target.password.value);
-    window.location.href = "/products";
+    const data = {
+      username: event.target.username.value,
+      password: event.target.password.value,
+    };
+
+    const callback = (status, res) => {
+      switch (status) {
+        case true:
+          localStorage.setItem("token", res);
+          localStorage.setItem("username", data.username);
+          setLoginFailed("");
+          window.location.href = "/products";
+          break;
+
+        default:
+          setLoginFailed(res.response.data);
+          break;
+      }
+    };
+
+    login(data, callback);
+    // localStorage.setItem("password", event.target.password.value);
+    // window.location.href = "/products";
   };
 
-  const emailRef = useRef(null);
+  const usernameRef = useRef(null);
 
   useEffect(() => {
-    emailRef.current.focus();
+    usernameRef.current.focus();
   }, []);
 
   return (
     <form onSubmit={handleSubmit}>
+      {loginFailed && <p className="text-red-500 mb-3">{loginFailed}</p>}
       <InputForm1
-        label="Email"
-        type="email"
-        placeholder="example@email.com"
-        name="email"
-        ref={emailRef}
+        label="Username"
+        type="text"
+        placeholder="username"
+        name="username"
+        ref={usernameRef}
       />
       <InputForm1
         label="Password"
