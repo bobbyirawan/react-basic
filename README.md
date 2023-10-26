@@ -8,6 +8,7 @@
 - react-router (react-router com)
 - axios
 - redux toolkit
+- react-redux
 
 ## state 
 - useState

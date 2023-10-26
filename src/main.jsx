@@ -7,6 +7,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 import ProductPage from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
 import DetailProductPage from "./pages/DetailProductPage";
+import { Provider } from "react-redux";
+import store from "./redux/store";
 
 const router = createBrowserRouter([
   {
@@ -28,7 +30,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/product/:id",
-    element: <DetailProductPage />
+    element: <DetailProductPage />,
   },
   {
     path: "/profile",
@@ -38,6 +40,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   // <React.StrictMode>
-  <RouterProvider router={router} />
+  <Provider store={store}>
+    <RouterProvider router={router} />
+  </Provider>
   // </React.StrictMode>
 );
