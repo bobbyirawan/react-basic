@@ -3,18 +3,16 @@ import ButtonDefault from "../components/atoms/ButtonDefault";
 import CardProduct from "../components/fragments/CardProduct";
 import { getProducts } from "../services/product.service";
 import { USD } from "../package/currency";
+import { useLogin } from "../hooks/useLogin";
 
 const ProductPage = () => {
   const [carts, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [products, setProducts] = useState([]);
-  const [username, setUsername] = useState("");
+  const username = useLogin();
 
   useEffect(() => {
     console.log("useEffect1");
-
-    setUsername(localStorage.getItem("username") || "");
-
     if (JSON.parse(localStorage.getItem("carts"))) {
       setCart(JSON.parse(localStorage.getItem("carts")));
     } else {
@@ -149,8 +147,12 @@ const ProductPage = () => {
                   );
                 })}
               <tr ref={totalPriceRef}>
-                <td colSpan={3}><b>Total Price</b></td>
-                <td><b>{USD(totalPrice)}</b></td>
+                <td colSpan={3}>
+                  <b>Total Price</b>
+                </td>
+                <td>
+                  <b>{USD(totalPrice)}</b>
+                </td>
               </tr>
             </tbody>
           </table>
